@@ -3,17 +3,18 @@ const express = require('express')
 const res = require('express/lib/response')
 const app = express()
 const based = new (require('rest-mssql-nodejs'))({
-    user: "celina",
-    password: "Estudiantec2022",
-    server: "servidor-celina-gustavo.database.windows.net",
-    database: "Tarea Programada Celina Gustavo",
+    user: "programa",
+    password: "programa",
+    server: "25.81.172.46",
+    database: "Tarea Programada",
     encrypt: true
 })
+
 
 let resultado = []
 
 setTimeout(async () => {
-    resultado = await based.executeQuery('SELECT * FROM dbo.Usuario');
+    resultado = await based.executeQuery('SELECT U.UserName, U.[Password] FROM dbo.Usuario U');
 }, 1500)
 
 // Variables
@@ -29,7 +30,7 @@ app.get('/', (req, res) => {
     res.render('login.ejs')
 })
 app.get('/articulos', (req, res) => {
-    res.render('articulos.ejs')
+    res.render('articulos.ejs', {productos : []})
 })
 app.get('/error', (req, res) => {
     res.render('error.ejs')
@@ -45,7 +46,7 @@ app.post('/login', (req, res) => {
 })
 app.post('/filtrarNom', (req, res) => {
     filtro = req.body.nomProd;
-    console.log(filtro);
+    filtrarNombre(filtro, res);
 })
 app.post('/filtrarCant', (req, res) => {
     filtro = req.body.cant;
@@ -66,6 +67,21 @@ function validarDatos (usuarioDatos, res) {
         res.redirect("./articulos");
     else
         res.redirect("./error");
+}
+
+function filtrarNombre (nombre, res) {
+    let articulosFiltrados = [];
+    setTimeout(async () => {
+        const resFiltroNom = await based.executeStoredProcedure('FiltrarNombre', null,
+        {inNombre : nombre, outResult : 0});
+        if (resFiltroNom != undefined) {
+            console.log(resFiltroNom.data[0]);
+            for (articulo of resFiltroNom.data[0]) {
+                articulosFiltrados.push(articulo);
+            }
+            res.render('articulos.ejs', {productos : articulosFiltrados});
+        }
+    }, 1500)
 }
 
 // Creacion del puerto para acceder la pagina web

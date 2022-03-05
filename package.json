@@ -7,6 +7,7 @@
   "dependencies": {
     "ejs": "^3.1.6",
     "express": "^4.17.3",
+    "jsdom": "^19.0.0",
     "rest-mssql-nodejs": "^1.0.10"
   },
   "devDependencies": {

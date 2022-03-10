@@ -14,7 +14,8 @@ const based = new (require('rest-mssql-nodejs'))({
 let resultado = []
 
 setTimeout(async () => {
-    resultado = await based.executeQuery('SELECT U.UserName, U.[Password] FROM dbo.Usuario U');
+    resultado = await based.executeQuery('SELECT U.UserName, U.[Password]' +
+    'FROM dbo.Usuario U');
 }, 1500)
 
 // Variables
@@ -30,7 +31,17 @@ app.get('/', (req, res) => {
     res.render('login.ejs')
 })
 app.get('/articulos', (req, res) => {
-    res.render('articulos.ejs', {productos : []})
+    let listaArticulos = [];
+    setTimeout(async () => {
+        const productos = await based.executeQuery('SELECT A.Nombre, A.Precio ' + 
+        'FROM dbo.Articulo A ORDER BY A.Nombre');
+        if (productos != undefined) {
+            for (articulo of productos.data[0]) {
+                listaArticulos.push(articulo);
+            }
+            res.render('articulos.ejs', {productos : listaArticulos});
+        }
+    }, 1500)
 })
 app.get('/error', (req, res) => {
     res.render('error.ejs')
@@ -50,7 +61,10 @@ app.post('/filtrarNom', (req, res) => {
 })
 app.post('/filtrarCant', (req, res) => {
     filtro = req.body.cant;
-    console.log(filtro);
+    filtrarCantidad(filtro, res);
+})
+app.post('/salir', (req, res) => {
+    res.redirect('./');
 })
 // Funciones logicas
 function validarDatos (usuarioDatos, res) {
@@ -77,6 +91,26 @@ function filtrarNombre (nombre, res) {
         if (resFiltroNom != undefined) {
             console.log(resFiltroNom.data[0]);
             for (articulo of resFiltroNom.data[0]) {
+                articulosFiltrados.push(articulo);
+            }
+            res.render('articulos.ejs', {productos : articulosFiltrados});
+        }
+    }, 1500)
+}
+
+function filtrarCantidad (cantidad, res) {
+    let articulosFiltrados = [];
+    if (cantidad == '')
+        cantidad = -1;
+    else {
+        cantidad = parseInt(cantidad);
+    }
+    setTimeout(async () => {
+        const resFiltroCant = await based.executeStoredProcedure('FiltrarCantidad', null,
+        {inCantidad : cantidad, outResult : 0});
+        if (resFiltroCant != undefined) {
+            console.log(resFiltroCant.data[0]);
+            for (articulo of resFiltroCant.data[0]) {
                 articulosFiltrados.push(articulo);
             }
             res.render('articulos.ejs', {productos : articulosFiltrados});

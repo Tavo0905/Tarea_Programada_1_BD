@@ -3,12 +3,12 @@
     <script>
         function deshabilitarBoton(){
             var cant = document.getElementById('cantidad').value;
-           
-            if (cant==""||!isNaN(Number(cant))){
-                document.getElementById('cantBoton').disabled=false;
+            cant = Number(cant);
+            if (cant == "" || (!isNaN(cant) && cant == Math.trunc(cant))){
+                document.getElementById('cantBoton').disabled = false;
             }
             else{
-                document.getElementById('cantBoton').disabled=true;    
+                document.getElementById('cantBoton').disabled = true;    
             }
         }
     </script>
@@ -36,6 +36,7 @@
     </form>
 </h1>
 <div>
+    <%=mensajeError%>
     <table>
         <thread>
             <tr>

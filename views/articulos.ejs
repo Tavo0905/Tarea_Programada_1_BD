@@ -1,5 +1,17 @@
 <h1>
     ARTÍCULOS
+    <script>
+        function deshabilitarBoton(){
+            var cant = document.getElementById('cantidad').value;
+           
+            if (cant==""||!isNaN(Number(cant))){
+                document.getElementById('cantBoton').disabled=false;
+            }
+            else{
+                document.getElementById('cantBoton').disabled=true;    
+            }
+        }
+    </script>
     <form action = "articulos" method = "POST">
         <div>
             <input type = "text" id = "nombreProducto" name = "nomProd">
@@ -8,8 +20,8 @@
             </button>
         </div>
         <div>
-            <input type = "text" id = "cantidad" name = "cant">
-            <button formaction = "filtrarCant" name = "cantBoton">
+            <input type = "text" id = "cantidad" name = "cant" onchange="deshabilitarBoton()">
+            <button formaction = "filtrarCant" id="cantBoton" name = "cantBoton">
                 Filtrar cantidad
             </button>
         </div>

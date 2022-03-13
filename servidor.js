@@ -43,9 +43,6 @@ app.get('/articulos', (req, res) => {
         }
     }, 1500)
 })
-app.get('/error', (req, res) => {
-    res.render('error.ejs')
-})
 
 app.post('/insertar', (req, res) => {
     res.render('insertar.ejs')

@@ -67,6 +67,11 @@ app.post('/filtrarCant', (req, res) => {
     filtro = req.body.cant;
     filtrarCantidad(filtro, res);
 })
+app.post('/insertarB', (req, res) => {
+    articulo = {nombre:req.body.name,precio:req.body.precio};
+    console.log(articulo);
+    res.redirect('./articulos')
+})
 app.post('/salir', (req, res) => {
     res.redirect('./');
 })

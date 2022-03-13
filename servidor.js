@@ -28,7 +28,7 @@ app.set('view-engine', 'ejs')
 
 // Extensiones de la pagina web
 app.get('/', (req, res) => {
-    res.render('login.ejs')
+    res.render('login.ejs',{mensaje:""})
 })
 app.get('/articulos', (req, res) => {
     let listaArticulos = [];
@@ -92,7 +92,7 @@ function validarDatos (usuarioDatos, res) {
     if (acceso)
         res.redirect("./articulos");
     else
-        res.redirect("./error");
+        res.render("login.ejs",{mensaje:"Combinación de usuario/password no existe en la BD"});
 }
 
 function filtrarNombre (nombre, res) {

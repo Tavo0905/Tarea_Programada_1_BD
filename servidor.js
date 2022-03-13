@@ -47,6 +47,10 @@ app.get('/error', (req, res) => {
     res.render('error.ejs')
 })
 
+app.post('/insertar', (req, res) => {
+    res.render('insertar.ejs')
+})
+
 // Funciones de las paginas web
 app.post('/login', (req, res) => {
     usuario = {

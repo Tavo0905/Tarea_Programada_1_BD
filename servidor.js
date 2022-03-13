@@ -10,14 +10,6 @@ const based = new (require('rest-mssql-nodejs'))({
     encrypt: true
 })
 
-
-let resultado = []
-
-setTimeout(async () => {
-    resultado = await based.executeQuery('SELECT U.UserName, U.[Password]' +
-    'FROM dbo.Usuario U');
-}, 1500)
-
 // Variables
 var usuario = {}
 var filtro = 0
@@ -33,13 +25,14 @@ app.get('/', (req, res) => {
 app.get('/articulos', (req, res) => {
     let listaArticulos = [];
     setTimeout(async () => {
-        const productos = await based.executeQuery('SELECT A.Nombre, A.Precio ' + 
-        'FROM dbo.Articulo A ORDER BY A.Nombre');
+        const productos = await based.executeStoredProcedure('SeleccionarArticulos',
+        null, {outResult : 0});
         if (productos != undefined) {
             for (articulo of productos.data[0]) {
                 listaArticulos.push(articulo);
             }
-            res.render('articulos.ejs', {productos : listaArticulos});
+            res.render('articulos.ejs', {mensajeError : "",
+            productos : listaArticulos});
         }
     }, 1500)
 })
@@ -65,9 +58,30 @@ app.post('/filtrarCant', (req, res) => {
     filtrarCantidad(filtro, res);
 })
 app.post('/insertarB', (req, res) => {
+    let listaArticulos = [];
     articulo = {nombre:req.body.name,precio:req.body.precio};
-    console.log(articulo);
-    res.redirect('./articulos')
+    setTimeout(async () => {
+        const respuesta = await based.executeStoredProcedure('InsertarArticulo', null,
+        {inNombre : articulo.nombre, inPrecio : articulo.precio, outResult : 0});
+        const productos = await based.executeStoredProcedure('SeleccionarArticulos',
+        null, {outResult : 0});
+        if (respuesta != undefined && productos != undefined) {
+            for (articulo of productos.data[0]) {
+                listaArticulos.push(articulo);
+            }
+            console.log(respuesta.data)
+            if (respuesta.data[0][0].outResult == 0) {
+                res.redirect('./articulos');
+            }
+            else {
+                if (respuesta.data[0][0].outResult == 1001) {
+                    res.render("articulos.ejs", {
+                    mensajeError : "Artículo con nombre duplicado.",
+                    productos : listaArticulos});
+                }
+            }
+        }
+    }, 1500)
 })
 app.post('/cancelar', (req, res) => {
     res.redirect('./articulos')
@@ -77,19 +91,19 @@ app.post('/salir', (req, res) => {
 })
 // Funciones logicas
 function validarDatos (usuarioDatos, res) {
-    let acceso = false;
-    for (elemento of resultado.data[0]) {
-        if ((usuarioDatos.user == elemento.UserName) &
-        (usuarioDatos.password == elemento.Password)){
-            console.log('Acceso garantizado');
-            acceso = true;
-            break;
+    setTimeout(async () => {
+        const resultado = await based.executeStoredProcedure('SeleccionarUsuarios',
+        null, {inUserName : usuarioDatos.user, inPassword : usuarioDatos.password,
+        outResult : 0});
+        if (resultado != undefined) {
+            console.log(resultado.data[0][0])
+            if (resultado.data[0][0].outResult == 0)
+                res.redirect("./articulos");
+            else
+                if (resultado.data[0][0].outResult == 1002)
+                    res.render("login.ejs",{mensaje:"Combinación de usuario/password no existe en la BD"});
         }
-    }
-    if (acceso)
-        res.redirect("./articulos");
-    else
-        res.render("login.ejs",{mensaje:"Combinación de usuario/password no existe en la BD"});
+    }, 1500)
 }
 
 function filtrarNombre (nombre, res) {
@@ -102,7 +116,8 @@ function filtrarNombre (nombre, res) {
             for (articulo of resFiltroNom.data[0]) {
                 articulosFiltrados.push(articulo);
             }
-            res.render('articulos.ejs', {productos : articulosFiltrados});
+            res.render('articulos.ejs', {mensajeError : "",
+            productos : articulosFiltrados});
         }
     }, 1500)
 }
@@ -122,7 +137,8 @@ function filtrarCantidad (cantidad, res) {
             for (articulo of resFiltroCant.data[0]) {
                 articulosFiltrados.push(articulo);
             }
-            res.render('articulos.ejs', {productos : articulosFiltrados});
+            res.render('articulos.ejs', {mensajeError : "",
+            productos : articulosFiltrados});
         }
     }, 1500)
 }

@@ -72,6 +72,9 @@ app.post('/insertarB', (req, res) => {
     console.log(articulo);
     res.redirect('./articulos')
 })
+app.post('/cancelar', (req, res) => {
+    res.redirect('./articulos')
+})
 app.post('/salir', (req, res) => {
     res.redirect('./');
 })

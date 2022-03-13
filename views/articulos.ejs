@@ -23,8 +23,25 @@
         </div>
     </form>
 </h1>
-<% for (elemento of productos) {%>
-    <div>
-        <%=elemento.Nombre%>      <%=elemento.Precio%>
-    </div>
-<% } %>
+<div>
+    <table>
+        <thread>
+            <tr>
+                <th class = "text-center">Nombre</th>
+                <th class = "text-center">Precio</th>
+            </tr>
+        </thread>
+        <tbody>
+            <% for (elemento of productos) {%>
+            <tr>
+                <td>
+                    <%=elemento.Nombre%>
+                </td>
+                <td>
+                    <%=elemento.Precio%>
+                </td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
